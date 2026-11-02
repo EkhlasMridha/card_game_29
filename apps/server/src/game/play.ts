@@ -1,4 +1,4 @@
-import { cardPoints, cardStrength, cardSuit, type CardId, type RulesConfig, type Seat, type Suit } from '@twentynine/shared';
+import { cardPoints, cardStrength, cardSuit, type CardId, type RulesConfig, type Seat, type Suit } from '@card29/shared';
 import type { DealState, Play } from './types';
 
 /**

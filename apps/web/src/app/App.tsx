@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BANGLADESH_RULES } from '@twentynine/shared';
+import { BANGLADESH_RULES } from '@card29/shared';
 import { Toasts } from '../components/Toasts';
 import { Privacy } from '../features/about/Privacy';
 import { GameScreen } from '../features/game/GameScreen';

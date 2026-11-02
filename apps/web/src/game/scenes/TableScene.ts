@@ -9,7 +9,7 @@ import {
   type RoomView,
   type Seat,
   type Suit,
-} from '@twentynine/shared';
+} from '@card29/shared';
 import { sfx } from '../../audio/sound';
 import { formatServerText } from '../../network/eventText';
 import { store } from '../../state/store';

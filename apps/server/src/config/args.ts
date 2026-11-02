@@ -6,9 +6,13 @@ export interface ServerConfig {
   hostName: string;
   /** Addresses shown to players instead of this machine's interfaces (e.g. the Docker host's LAN IP). */
   advertise: string[];
+  /** Public site address when served through a reverse proxy, e.g. https://card29.example.com (origin only). */
+  publicUrl: string | null;
+  /** Trust X-Forwarded-Host / X-Forwarded-Proto from the reverse proxy in front of this server. */
+  trustProxy: boolean;
 }
 
-const HELP = `29 LAN host server
+const HELP = `Card 29 host server
 
 Usage: npm start -- [options]
 
@@ -18,6 +22,9 @@ Usage: npm start -- [options]
   --name <text>       Host name shown to discovering hosts (default: computer hostname)
   --advertise <a,b>   LAN address(es) shown in the lobby instead of the detected ones
                       (env ADVERTISE_ADDRESS; needed in Docker, which only sees its own network)
+  --public-url <url>  Public address behind a reverse proxy, e.g. https://card29.example.com
+                      (env PUBLIC_URL; used for join links, canonical URL, sitemap and the origin check)
+  --trust-proxy       Trust X-Forwarded-Host/-Proto from the proxy (env TRUST_PROXY=1)
   --help              Show this help
 `;
 
@@ -29,6 +36,8 @@ export function parseArgs(argv: string[], defaultName: string): ServerConfig {
     discovery: process.env.DISCOVERY === '1',
     hostName: defaultName,
     advertise: splitList(process.env.ADVERTISE_ADDRESS),
+    publicUrl: process.env.PUBLIC_URL || null,
+    trustProxy: process.env.TRUST_PROXY === '1' || process.env.TRUST_PROXY === 'true',
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -38,6 +47,8 @@ export function parseArgs(argv: string[], defaultName: string): ServerConfig {
     else if (a === '--discovery') cfg.discovery = true;
     else if (a === '--name') cfg.hostName = String(argv[++i]).slice(0, 32);
     else if (a === '--advertise') cfg.advertise = splitList(argv[++i]);
+    else if (a === '--public-url') cfg.publicUrl = String(argv[++i]);
+    else if (a === '--trust-proxy') cfg.trustProxy = true;
     else if (a === '--help' || a === '-h') {
       console.log(HELP);
       process.exit(0);
@@ -53,7 +64,28 @@ export function parseArgs(argv: string[], defaultName: string): ServerConfig {
     console.error(`Invalid --advertise / ADVERTISE_ADDRESS entry: ${bad}`);
     process.exit(1);
   }
+  if (cfg.publicUrl) cfg.publicUrl = normalizePublicUrl(cfg.publicUrl);
   return cfg;
+}
+
+/** http(s) origin only: the client connects to /ws at the site root, so a sub-path is not supported. */
+function normalizePublicUrl(raw: string): string {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    console.error(`Invalid --public-url / PUBLIC_URL: ${raw}`);
+    process.exit(1);
+  }
+  if ((url.protocol !== 'http:' && url.protocol !== 'https:') || url.username || url.password || url.search || url.hash) {
+    console.error(`--public-url / PUBLIC_URL must be a plain http(s) address, e.g. https://card29.example.com (got ${raw})`);
+    process.exit(1);
+  }
+  if (url.pathname !== '/') {
+    console.error(`--public-url / PUBLIC_URL must be the site root; serving Card 29 under a sub-path (${url.pathname}) is not supported.`);
+    process.exit(1);
+  }
+  return url.origin;
 }
 
 function splitList(value: string | undefined): string[] {

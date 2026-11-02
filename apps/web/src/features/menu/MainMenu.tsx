@@ -15,6 +15,7 @@ const ITEMS: { screen: AppScreen | 'quick'; label: string; hint: string; primary
 
 export function MainMenu({ go, quickPlay }: { go: (s: AppScreen) => void; quickPlay: () => void }) {
   const leftReason = useStore((s) => s.leftReason);
+  const publicUrl = useStore((s) => s.serverInfo?.publicUrl ?? null);
   return (
     <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col items-center justify-center gap-8 px-4 py-10 lg:flex-row lg:gap-16">
       <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
@@ -29,13 +30,11 @@ export function MainMenu({ go, quickPlay }: { go: (s: AppScreen) => void; quickP
             <MiniCard card="AD" size={78} />
           </div>
         </div>
-        <h1 className="font-display text-6xl font-bold tracking-tight text-gold-300 sm:text-7xl">
-          Twenty<span className="text-white/90">-</span>Nine
-        </h1>
+        <h1 className="font-display text-6xl font-bold tracking-tight text-gold-300 sm:text-7xl">{t('appTitle')}</h1>
         <p className="mt-3 max-w-sm text-base text-white/65">{t('appTagline')}</p>
         <div className="mt-4 flex items-center gap-3">
           <ConnectionBadge />
-          <span className="chip">LAN only · no internet</span>
+          <span className="chip">{publicUrl ? 'Private rooms · no tracking' : 'LAN only · no internet'}</span>
         </div>
       </div>
 
@@ -44,7 +43,10 @@ export function MainMenu({ go, quickPlay }: { go: (s: AppScreen) => void; quickP
           <div className="mb-2 rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">{leftReason}</div>
         )}
         <ul className="flex flex-col gap-1.5">
-          {ITEMS.map((item) => (
+          {ITEMS.map((item) =>
+            // Online, the table lives on the server rather than "this device".
+            publicUrl && item.screen === 'quick' ? { ...item, label: 'Quick Game', hint: 'Open a table with Bangladesh rules' } : item,
+          ).map((item) => (
             <li key={item.label}>
               <button
                 onClick={() => (item.screen === 'quick' ? quickPlay() : go(item.screen))}

@@ -1,4 +1,4 @@
-import { PROTOCOL_VERSION, type OutgoingMessage, type ServerMessage } from '@twentynine/shared';
+import { PROTOCOL_VERSION, type OutgoingMessage, type ServerMessage } from '@card29/shared';
 import { store } from '../state/store';
 import { describeEvent } from './eventText';
 

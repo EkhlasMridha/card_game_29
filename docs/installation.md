@@ -54,4 +54,22 @@ docker compose down           # stop
 
 You can also put `ADVERTISE_ADDRESS=192.168.1.100` in a `.env` file next to `docker-compose.yml`. Without it, the lobby shows the container's internal `172.x` address, which other devices can't reach. Port 5050 on the host maps to 5050 in the container. LAN discovery (`--discovery`) doesn't work through Docker's bridge network.
 
-Without Compose: `docker build -t twentynine-lan . && docker run -d -p 5050:5050 -e ADVERTISE_ADDRESS=192.168.1.100 --read-only --cap-drop ALL twentynine-lan`.
+Without Compose: `docker build -t card29 . && docker run -d -p 5050:5050 -e ADVERTISE_ADDRESS=192.168.1.100 --read-only --cap-drop ALL card29`.
+
+## Behind an nginx reverse proxy
+
+Card 29 can be served online at the root of a domain (for example `https://card29.example.com`). Sub-paths like `/card29/` aren't supported, because the client connects to `/ws` at the site root.
+
+1. Start the game server with two settings:
+   * `PUBLIC_URL=https://card29.example.com` is the address players use. It sets the lobby's join link and QR code, the canonical URL, `sitemap.xml`, and the allowed origin for game connections.
+   * `TRUST_PROXY=1` makes the server read nginx's `X-Forwarded-Host` and `X-Forwarded-Proto` headers. Only set it when the server is reachable only through the proxy.
+
+   With Docker: `PUBLIC_URL=https://card29.example.com TRUST_PROXY=1 docker compose up -d --build` (or put both in `.env`). If nginx runs on the same machine, change the port mapping to `"127.0.0.1:5050:5050"` so players can't bypass the proxy.
+2. Copy `deploy/nginx/card29-proxy.conf` to `/etc/nginx/snippets/` and `deploy/nginx/card29.conf` to `/etc/nginx/conf.d/`, then edit the domain and certificate paths. The config upgrades `/ws` to a WebSocket with one-hour idle timeouts, forwards the original host and scheme, and gzips text assets.
+3. Run `nginx -t && nginx -s reload`.
+
+If TLS ends in front of nginx (for example at a load balancer or CDN), set `proxy_set_header X-Forwarded-Proto https;` in the snippet instead of `$scheme`.
+
+To try the whole setup locally: `PUBLIC_URL=http://localhost:8080 TRUST_PROXY=1 docker compose --profile proxy up -d --build`, then open `http://localhost:8080`.
+
+The server also serves `robots.txt` and, when `PUBLIC_URL` is set, `sitemap.xml`. The page includes a title, description, keywords, Open Graph and Twitter tags, and JSON-LD `VideoGame` data.

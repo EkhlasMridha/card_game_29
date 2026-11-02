@@ -7,7 +7,7 @@ import {
   type ErrorCode,
   type ServerInfo,
   type ServerMessage,
-} from '@twentynine/shared';
+} from '@card29/shared';
 import { RoomError, type Connection, type GameAction, type Player, type Room } from '../rooms/room';
 import type { RoomManager } from '../rooms/roomManager';
 import { RateLimiter } from '../security/rateLimiter';

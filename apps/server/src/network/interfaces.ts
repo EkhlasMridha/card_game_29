@@ -1,5 +1,5 @@
 import { networkInterfaces } from 'node:os';
-import type { NetworkAddress } from '@twentynine/shared';
+import type { NetworkAddress } from '@card29/shared';
 
 /** Non-internal IPv4 addresses of this machine, private LAN ranges first. */
 export function lanAddresses(): NetworkAddress[] {

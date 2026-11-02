@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { SUITS, fullDeck, type CardId, type Suit } from '@twentynine/shared';
+import { SUITS, fullDeck, type CardId, type Suit } from '@card29/shared';
 import { cardBackSvg, cardFaceSvg, loadSvgImage, suitColor, suitSvg } from './cardArt';
 
 export const BACK_KEY = 'card-back';

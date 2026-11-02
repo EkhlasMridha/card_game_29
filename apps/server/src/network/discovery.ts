@@ -38,7 +38,7 @@ export class LanDiscovery {
       if (buf.length > 256) return;
       try {
         const msg = JSON.parse(buf.toString('utf8')) as { app?: string; v?: number; name?: string; port?: number };
-        if (msg.app !== 'twentynine' || msg.v !== 1 || typeof msg.port !== 'number') return;
+        if (msg.app !== 'card29' || msg.v !== 1 || typeof msg.port !== 'number') return;
         const own = lanAddresses().some((a) => a.address === rinfo.address) && msg.port === this.port;
         if (own) return;
         const url = `http://${rinfo.address}:${msg.port}`;
@@ -55,7 +55,7 @@ export class LanDiscovery {
   }
 
   private announce(): void {
-    const payload = Buffer.from(JSON.stringify({ app: 'twentynine', v: 1, name: this.name, port: this.port }));
+    const payload = Buffer.from(JSON.stringify({ app: 'card29', v: 1, name: this.name, port: this.port }));
     this.socket?.send(payload, DISCOVERY_PORT, '255.255.255.255');
   }
 

@@ -1,4 +1,4 @@
-import { sortHand, teamOf, type GameView, type Seat } from '@twentynine/shared';
+import { sortHand, teamOf, type GameView, type Seat } from '@card29/shared';
 import { biddingOptions, currentHighBidder } from './bidding';
 import type { Match } from './match';
 import { canDeclarePair } from './pair';

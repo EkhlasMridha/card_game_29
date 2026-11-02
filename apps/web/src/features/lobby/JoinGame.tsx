@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NAME_MAX } from '@twentynine/shared';
+import { NAME_MAX } from '@card29/shared';
 import { Screen } from '../../components/Screen';
 import { t } from '../../i18n';
 import { net } from '../../network/client';

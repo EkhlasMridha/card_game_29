@@ -1,4 +1,4 @@
-import { ROOM_NAME_MAX, sanitizeDisplayText, type OpenRoomInfo, type RulesConfig } from '@twentynine/shared';
+import { ROOM_NAME_MAX, sanitizeDisplayText, type OpenRoomInfo, type RulesConfig } from '@card29/shared';
 import { newRoomCode } from '../security/tokens';
 import { Room } from './room';
 

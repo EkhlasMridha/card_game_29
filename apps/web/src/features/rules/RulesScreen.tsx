@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BANGLADESH_RULES, STANDARD_RULES } from '@twentynine/shared';
+import { BANGLADESH_RULES, STANDARD_RULES } from '@card29/shared';
 import { Screen } from '../../components/Screen';
 import { SettingsPanel } from '../settings/SettingsPanel';
 import { Rulebook } from './Rulebook';

@@ -13,7 +13,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@twentynine/shared": ["packages/shared/src/index.ts"]
+      "@card29/shared": ["packages/shared/src/index.ts"]
     }
   }
 }

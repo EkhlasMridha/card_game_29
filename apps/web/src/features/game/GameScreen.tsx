@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { cardName, type GameView, type RoomView } from '@twentynine/shared';
+import { cardName, type GameView, type RoomView } from '@card29/shared';
 import { MiniCard } from '../../components/Cards';
 import { Modal } from '../../components/Modal';
 import { GameCanvas } from '../../game/phaser/GameCanvas';

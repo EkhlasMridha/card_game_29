@@ -8,7 +8,7 @@ import type {
   Seat,
   Suit,
   Team,
-} from '@twentynine/shared';
+} from '@card29/shared';
 
 /** Internal (never sent as-is) server-side game state. */
 

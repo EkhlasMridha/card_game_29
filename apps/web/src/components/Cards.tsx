@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { SUIT_NAMES, cardName, type CardId, type Suit } from '@twentynine/shared';
+import { SUIT_NAMES, cardName, type CardId, type Suit } from '@card29/shared';
 import { cardFaceSvg, suitColor, suitSvg, svgToDataUri } from '../game/entities/cardArt';
 import { useStore } from '../state/hooks';
 

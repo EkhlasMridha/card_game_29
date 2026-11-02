@@ -1,4 +1,4 @@
-import { cardRank, cardSuit, type CardId, type Rank, type Suit } from '@twentynine/shared';
+import { cardRank, cardSuit, type CardId, type Rank, type Suit } from '@card29/shared';
 
 /**
  * Procedurally generated SVG card art (no image assets, nothing downloaded).

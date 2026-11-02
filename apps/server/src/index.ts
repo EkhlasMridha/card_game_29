@@ -3,7 +3,7 @@ import { hostname } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
-import { MAX_MESSAGE_BYTES, PROTOCOL_VERSION, type ServerInfo } from '@twentynine/shared';
+import { MAX_MESSAGE_BYTES, PROTOCOL_VERSION, type ServerInfo } from '@card29/shared';
 import { parseArgs } from './config/args';
 import { createRequestHandler } from './http/staticServer';
 import { LanDiscovery } from './network/discovery';
@@ -31,17 +31,21 @@ function serverInfo(): ServerInfo {
       : config.bind === '0.0.0.0'
         ? lanAddresses()
         : lanAddresses().filter((a) => a.address === config.bind),
+    publicUrl: config.publicUrl,
     rooms: rooms.list(),
     discoveredHosts: discovery?.hosts() ?? [],
   };
 }
 
-const server = createServer(createRequestHandler(webRoot, serverInfo));
+const server = createServer(
+  createRequestHandler(webRoot, serverInfo, { publicUrl: config.publicUrl, trustProxy: config.trustProxy }),
+);
+const originPolicy = { dev: config.dev, trustProxy: config.trustProxy, publicOrigin: config.publicUrl };
 const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_MESSAGE_BYTES, perMessageDeflate: false });
 
 server.on('upgrade', (req, socket, head) => {
   const path = new URL(req.url ?? '/', 'http://local').pathname;
-  if (path !== '/ws' || !isAllowedOrigin(req, config.dev)) {
+  if (path !== '/ws' || !isAllowedOrigin(req, originPolicy)) {
     socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
     socket.destroy();
     return;
@@ -71,8 +75,10 @@ const heartbeat = setInterval(() => {
 
 server.listen(config.port, config.bind, () => {
   const addrs = serverInfo().addresses;
-  console.log('\n  ♠ ♥  29 — LAN card table  ♦ ♣\n');
+  console.log('\n  ♠ ♥  Card 29  ♦ ♣\n');
   console.log(`  Local:   http://localhost:${config.port}`);
+  if (config.publicUrl) console.log(`  Public:  ${config.publicUrl}`);
+  if (config.trustProxy) console.log('  Proxy:   trusting X-Forwarded-Host / X-Forwarded-Proto');
   for (const a of addrs) console.log(`  LAN:     http://${a.address}:${config.port}   (${a.interface})`);
   if (addrs.length === 0) console.log('  No LAN interface found — connect this computer to Wi-Fi to let others join.');
   console.log('\n  Share a LAN address with the other players (same Wi-Fi network).');
@@ -83,7 +89,7 @@ server.listen(config.port, config.bind, () => {
 });
 
 server.on('error', (err: NodeJS.ErrnoException) => {
-  if (err.code === 'EADDRINUSE') console.error(`Port ${config.port} is already in use. Try --port 3001.`);
+  if (err.code === 'EADDRINUSE') console.error(`Port ${config.port} is already in use. Try --port 5051.`);
   else console.error(err.message);
   process.exit(1);
 });

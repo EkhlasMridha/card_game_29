@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto';
-import { fullDeck, type CardId } from '@twentynine/shared';
+import { fullDeck, type CardId } from '@card29/shared';
 
 /** Fisher–Yates shuffle driven by the OS CSPRNG (crypto.randomInt). */
 export function shuffledDeck(): CardId[] {

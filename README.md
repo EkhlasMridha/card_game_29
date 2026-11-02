@@ -1,8 +1,8 @@
-# Twenty-Nine (29) — offline LAN card game
+# Card 29 — the 29 card game for LAN or online play
 
 A four-player implementation of the South Asian trick-taking game **29**, defaulting to the
-**Bangladesh** rules. One computer runs the host, and friends join from phone or laptop browsers on
-the same Wi-Fi. There is no internet, no accounts and no cloud.
+**Bangladesh** rules. One server hosts the tables: run it on a computer for friends on the same Wi-Fi,
+or put it online behind nginx. There are no accounts, no ads and no tracking.
 
 * **Frontend:** React 19 + TypeScript + Vite 6, Tailwind CSS 4 for menus and dialogs, Phaser 3 for the card table
 * **Backend:** Node.js + TypeScript, `ws`, an authoritative in-memory game engine
@@ -16,7 +16,7 @@ npm run build
 npm start        # → http://localhost:5050 and http://<your-LAN-IP>:5050
 ```
 
-Or with Docker: `ADVERTISE_ADDRESS=<your-LAN-IP> docker compose up -d --build` (see [docs/installation.md](docs/installation.md#docker)).
+Or with Docker: `ADVERTISE_ADDRESS=<your-LAN-IP> docker compose up -d --build` (see [docs/installation.md](docs/installation.md#docker)). To put Card 29 online behind nginx, see [docs/installation.md](docs/installation.md#behind-an-nginx-reverse-proxy).
 
 1. On the host computer, open `http://localhost:5050` and choose **Play Locally** or **Create Game**.
 2. The lobby shows the **room code**, the **LAN join address** and a QR code. If you have several network adapters, pick the Wi-Fi address.

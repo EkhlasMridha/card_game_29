@@ -1,5 +1,5 @@
 {
-  "name": "@twentynine/server",
+  "name": "@card29/server",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,7 @@
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --minify --tree-shaking=true --legal-comments=none --drop:debugger --outfile=dist/index.js --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\""
   },
   "dependencies": {
-    "@twentynine/shared": "1.0.0",
+    "@card29/shared": "1.0.0",
     "ws": "8.18.3",
     "zod": "4.3.6"
   },

@@ -1,4 +1,4 @@
-import { BANGLADESH_RULES, STANDARD_RULES, type RulesConfig } from '@twentynine/shared';
+import { BANGLADESH_RULES, STANDARD_RULES, type RulesConfig } from '@card29/shared';
 import type { ReactNode } from 'react';
 
 function Row({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {

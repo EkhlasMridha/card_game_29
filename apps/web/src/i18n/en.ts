@@ -1,6 +1,6 @@
 export const en = {
-  appTitle: 'Twenty-Nine',
-  appTagline: 'The South Asian trick-taking classic, played privately on your own Wi-Fi.',
+  appTitle: 'Card 29',
+  appTagline: 'The South Asian trick-taking classic. Open a private table and play with three friends.',
   menuPlayLocally: 'Play Locally',
   menuPlayLocallyHint: 'Host a table on this device with Bangladesh rules',
   menuCreate: 'Create Game',
@@ -12,7 +12,7 @@ export const en = {
   menuRules: 'Rules & Settings',
   menuRulesHint: 'Full rulebook and preferences',
   menuPrivacy: 'Privacy & About',
-  menuPrivacyHint: 'Offline, LAN-only, no tracking',
+  menuPrivacyHint: 'No accounts, no ads, no tracking',
   back: 'Back',
   yourName: 'Your display name',
   namePlaceholder: 'e.g. Rafi',

@@ -1,4 +1,4 @@
-import { NAME_MAX } from '@twentynine/shared';
+import { NAME_MAX } from '@card29/shared';
 import { MiniCard } from '../../components/Cards';
 import { t } from '../../i18n';
 import { useStore } from '../../state/hooks';

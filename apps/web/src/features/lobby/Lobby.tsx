@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode';
-import { TEAM_NAMES, describeRules, teamOf, type RoomView, type Seat } from '@twentynine/shared';
+import { TEAM_NAMES, describeRules, teamOf, type RoomView, type Seat } from '@card29/shared';
 import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { Modal } from '../../components/Modal';
 import { t } from '../../i18n';
@@ -11,6 +11,8 @@ import { RulesEditor } from './RulesEditor';
 function useJoinUrls(): { url: string; label: string }[] {
   const info = useStore((s) => s.serverInfo);
   return useMemo(() => {
+    // Behind a reverse proxy the public site address is the only one that works for everyone.
+    if (info?.publicUrl) return [{ url: info.publicUrl, label: 'Public address' }];
     const port = location.port || (location.protocol === 'https:' ? '443' : '80');
     const list: { url: string; label: string }[] = [];
     const hostIsLoopback = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
@@ -48,6 +50,7 @@ const SEAT_POS: Record<number, string> = {
 
 export function Lobby({ room }: { room: RoomView }) {
   const urls = useJoinUrls();
+  const online = useStore((s) => !!s.serverInfo?.publicUrl);
   const [urlIdx, setUrlIdx] = useState(0);
   const [editing, setEditing] = useState(false);
   const url = urls[Math.min(urlIdx, urls.length - 1)]?.url ?? null;
@@ -182,7 +185,9 @@ export function Lobby({ room }: { room: RoomView }) {
               </div>
             </div>
             <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs leading-relaxed text-white/60">
-              <li>Join the same Wi-Fi network as the host (guest networks and some hotspots block devices from seeing each other).</li>
+              {!online && (
+                <li>Join the same Wi-Fi network as the host (guest networks and some hotspots block devices from seeing each other).</li>
+              )}
               <li>Open the join address in a browser, or scan the QR code.</li>
               <li>Choose Join Game and enter room code <span className="font-mono text-gold-300">{room.code}</span>.</li>
             </ol>

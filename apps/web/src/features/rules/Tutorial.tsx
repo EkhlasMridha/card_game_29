@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import type { CardId } from '@twentynine/shared';
+import type { CardId } from '@card29/shared';
 import { MiniCard } from '../../components/Cards';
 import { Screen } from '../../components/Screen';
 

@@ -1,4 +1,4 @@
-import { makeCard, maxBid, teamOf, type PairView, type RulesConfig, type Seat } from '@twentynine/shared';
+import { makeCard, maxBid, teamOf, type PairView, type RulesConfig, type Seat } from '@card29/shared';
 import type { DealState } from './types';
 
 /**

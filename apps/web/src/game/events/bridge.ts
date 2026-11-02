@@ -1,4 +1,4 @@
-import type { CardId, GameEvent, GameView, RoomView } from '@twentynine/shared';
+import type { CardId, GameEvent, GameView, RoomView } from '@card29/shared';
 import { net } from '../../network/client';
 import { store, type Settings } from '../../state/store';
 

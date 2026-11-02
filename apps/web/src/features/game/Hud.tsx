@@ -1,4 +1,4 @@
-import { SUIT_NAMES, TEAM_NAMES, teamOf, type GameView, type RoomView } from '@twentynine/shared';
+import { SUIT_NAMES, TEAM_NAMES, teamOf, type GameView, type RoomView } from '@card29/shared';
 import { SuitIcon } from '../../components/Cards';
 import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { seatName } from '../../network/eventText';

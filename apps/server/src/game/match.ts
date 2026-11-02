@@ -10,7 +10,7 @@ import {
   type RulesConfig,
   type Seat,
   type Suit,
-} from '@twentynine/shared';
+} from '@card29/shared';
 import { applyBid, createBidding, type BidInput } from './bidding';
 import { secureRandomInt, shuffledDeck } from './deck';
 import { canDeclarePair, computePairEffect } from './pair';

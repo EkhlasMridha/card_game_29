@@ -1,4 +1,4 @@
-import { SUIT_NAMES, TEAM_NAMES, type GameEvent, type RoomView, type Seat } from '@twentynine/shared';
+import { SUIT_NAMES, TEAM_NAMES, type GameEvent, type RoomView, type Seat } from '@card29/shared';
 import type { Toast } from '../state/store';
 
 export function seatName(room: RoomView | null, seat: Seat | null, you: Seat | null = null): string {

@@ -1,4 +1,4 @@
-# 29 — Rules specification
+# Card 29 — Rules specification
 
 This document records the rules the engine implements, the sources they come from,
 where sources disagree, and how each disagreement became a configurable option.

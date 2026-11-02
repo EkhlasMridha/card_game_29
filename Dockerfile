@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 #
-# 29 — LAN card table. Multi-stage build:
+# Card 29. Multi-stage build:
 #   build    full Node toolchain; installs deps and produces the minified bundles
 #   runtime  bare Alpine + the node binary only (no npm/yarn/corepack, no node_modules):
 #            the server bundle already contains its dependencies.

@@ -8,7 +8,7 @@ import {
   type RulesConfig,
   type Seat,
   type ServerMessage,
-} from '@twentynine/shared';
+} from '@card29/shared';
 import { Match } from '../game/match';
 import { RuleViolation } from '../game/types';
 import { buildGameView } from '../game/view';

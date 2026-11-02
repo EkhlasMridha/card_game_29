@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { SUITS, SUIT_NAMES, teamOf, type GameView, type RoomView, type Seat } from '@twentynine/shared';
+import { SUITS, SUIT_NAMES, teamOf, type GameView, type RoomView, type Seat } from '@card29/shared';
 import { SuitIcon } from '../../components/Cards';
 import { computeLayout } from '../../game/scenes/layout';
 import { t } from '../../i18n';

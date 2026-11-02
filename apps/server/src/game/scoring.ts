@@ -1,4 +1,4 @@
-import { teamOf, type DealSummaryView, type RulesConfig, type Team } from '@twentynine/shared';
+import { teamOf, type DealSummaryView, type RulesConfig, type Team } from '@card29/shared';
 import type { DealState } from './types';
 
 /**

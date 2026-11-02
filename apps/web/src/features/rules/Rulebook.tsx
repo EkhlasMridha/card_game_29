@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { CARD_POINTS, RANK_NAMES, describeRules, maxBid, type CardId, type Rank, type RulesConfig } from '@twentynine/shared';
+import { CARD_POINTS, RANK_NAMES, describeRules, maxBid, type CardId, type Rank, type RulesConfig } from '@card29/shared';
 import { MiniCard } from '../../components/Cards';
 
 const ORDER: Rank[] = ['J', '9', 'A', '10', 'K', 'Q', '8', '7'];

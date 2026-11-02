@@ -36,6 +36,8 @@ export interface ServerInfo {
   protocol: number;
   port: number;
   addresses: NetworkAddress[];
+  /** Public site address when the host runs behind a reverse proxy (PUBLIC_URL); null on a LAN. */
+  publicUrl: string | null;
   rooms: OpenRoomInfo[];
   discoveredHosts: { name: string; url: string }[];
 }

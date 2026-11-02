@@ -1,4 +1,4 @@
-import { maxBid, type RulesConfig, type Seat } from '@twentynine/shared';
+import { maxBid, type RulesConfig, type Seat } from '@card29/shared';
 import { RuleViolation, type BiddingState, type OpenBidding, type PriorityBidding } from './types';
 
 /**

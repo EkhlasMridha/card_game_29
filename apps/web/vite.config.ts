@@ -39,7 +39,7 @@ export default defineConfig({
   plugins: [phaserFlags(), react(), tailwindcss()],
   resolve: {
     alias: [
-      { find: '@twentynine/shared', replacement: fileURLToPath(new URL('../../packages/shared/src/browser.ts', import.meta.url)) },
+      { find: '@card29/shared', replacement: fileURLToPath(new URL('../../packages/shared/src/browser.ts', import.meta.url)) },
       // Slim Phaser (core + Container); see src/game/phaser/phaserCore.js.
       { find: /^phaser$/, replacement: fileURLToPath(new URL('./src/game/phaser/phaserCore.js', import.meta.url)) },
     ],

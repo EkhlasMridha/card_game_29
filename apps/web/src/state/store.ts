@@ -1,4 +1,4 @@
-import type { GameEvent, GameView, RoomView, ServerInfo } from '@twentynine/shared';
+import type { GameEvent, GameView, RoomView, ServerInfo } from '@card29/shared';
 
 /**
  * Small typed external store. React subscribes with useSyncExternalStore; the

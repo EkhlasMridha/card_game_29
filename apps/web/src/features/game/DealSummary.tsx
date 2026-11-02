@@ -1,4 +1,4 @@
-import { SUIT_NAMES, TEAM_NAMES, teamOf, type GameView, type RoomView, type Team } from '@twentynine/shared';
+import { SUIT_NAMES, TEAM_NAMES, teamOf, type GameView, type RoomView, type Team } from '@card29/shared';
 import { MiniCard, SuitIcon } from '../../components/Cards';
 import { Modal } from '../../components/Modal';
 import { t } from '../../i18n';

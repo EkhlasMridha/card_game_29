@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BANGLADESH_RULES, NAME_MAX, ROOM_NAME_MAX, type RulesConfig } from '@twentynine/shared';
+import { BANGLADESH_RULES, NAME_MAX, ROOM_NAME_MAX, type RulesConfig } from '@card29/shared';
 import { Screen } from '../../components/Screen';
 import { t } from '../../i18n';
 import { net } from '../../network/client';
@@ -54,7 +54,7 @@ export function CreateGame({ onBack }: { onBack: () => void }) {
             />
           </div>
           <p className="text-xs leading-relaxed text-white/55">
-            The computer running the 29 server hosts this room. You get a room code and a local address to share. Other players open that address on the same Wi-Fi network.
+            The Card 29 server hosts this room. You get a room code and an address to share; the other three players open that address and enter the code.
           </p>
           <button className="btn-primary" type="submit">
             {t('createRoom')}
