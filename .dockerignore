@@ -1,0 +1,17 @@
+# Only sources and manifests go into the build context.
+**/node_modules
+**/dist
+.git
+.gitignore
+.claude
+.vscode
+.idea
+docs
+scripts
+README.md
+*.log
+Dockerfile
+.dockerignore
+docker-compose.yml
+compose.yaml
+.env

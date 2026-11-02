@@ -1,0 +1,22 @@
+{
+  "name": "@twentynine/server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts --dev",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node22 --minify --tree-shaking=true --legal-comments=none --drop:debugger --outfile=dist/index.js --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\""
+  },
+  "dependencies": {
+    "@twentynine/shared": "1.0.0",
+    "ws": "8.18.3",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "@types/ws": "8.18.1",
+    "esbuild": "0.25.12",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  }
+}

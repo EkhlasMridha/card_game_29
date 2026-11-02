@@ -1,0 +1,34 @@
+services:
+  twentynine:
+    build:
+      context: .
+      args:
+        NODE_VERSION: 22.23.4
+        ALPINE_VERSION: "3.24"
+    image: twentynine-lan:1.0.0
+    container_name: twentynine
+    init: true # tiny init as PID 1: forwards SIGTERM so the server shuts rooms down cleanly
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    environment:
+      PORT: "5050"
+      # Inside Docker the server only sees the container network (172.x), so the
+      # lobby's join link / QR code would be wrong. Set this host's LAN IP, e.g.
+      #   ADVERTISE_ADDRESS=192.168.1.100 docker compose up -d
+      # or put ADVERTISE_ADDRESS=192.168.1.100 in a .env file next to this one.
+      ADVERTISE_ADDRESS: ${ADVERTISE_ADDRESS:-}
+    # Hardening: the server keeps all state in memory and never writes to disk.
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 256m
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
