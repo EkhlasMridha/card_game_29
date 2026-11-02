@@ -1,4 +1,4 @@
-import { createServer } from 'node:http';
+import { createServer, type IncomingMessage } from 'node:http';
 import { hostname } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -46,6 +46,7 @@ const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_MESSAGE_BYTES,
 server.on('upgrade', (req, socket, head) => {
   const path = new URL(req.url ?? '/', 'http://local').pathname;
   if (path !== '/ws' || !isAllowedOrigin(req, originPolicy)) {
+    logRejectedUpgrade(req, path);
     socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
     socket.destroy();
     return;
@@ -55,6 +56,20 @@ server.on('upgrade', (req, socket, head) => {
     new ClientConnection(ws, rooms, serverInfo);
   });
 });
+
+/** Log each distinct rejected upgrade once, so proxy misconfigurations show up in the logs. */
+const loggedRejections = new Set<string>();
+function logRejectedUpgrade(req: IncomingMessage, path: string): void {
+  const h = (name: string) => String(req.headers[name] ?? '-');
+  const key = `${path}|${h('origin')}|${h('host')}|${h('x-forwarded-host')}`;
+  if (loggedRejections.has(key) || loggedRejections.size >= 50) return;
+  loggedRejections.add(key);
+  console.warn(
+    `[ws] rejected upgrade: path=${path} origin=${h('origin')} host=${h('host')} ` +
+      `x-forwarded-host=${h('x-forwarded-host')} x-forwarded-proto=${h('x-forwarded-proto')} ` +
+      `(PUBLIC_URL=${config.publicUrl ?? 'unset'}, TRUST_PROXY=${config.trustProxy ? 1 : 0})`,
+  );
+}
 
 // Heartbeat: drop dead sockets so seats show as disconnected promptly.
 const alive = new WeakMap<object, boolean>();
