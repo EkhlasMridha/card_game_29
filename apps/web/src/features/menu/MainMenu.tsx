@@ -4,8 +4,9 @@ import { t } from '../../i18n';
 import { useStore } from '../../state/hooks';
 import type { AppScreen } from '../../app/App';
 
-const ITEMS: { screen: AppScreen | 'quick'; label: string; hint: string; primary?: boolean }[] = [
+const ITEMS: { screen: AppScreen | 'quick' | 'bots'; label: string; hint: string; primary?: boolean }[] = [
   { screen: 'quick', label: t('menuPlayLocally'), hint: t('menuPlayLocallyHint'), primary: true },
+  { screen: 'bots', label: 'Play with Bots', hint: 'Start right away against three computer players' },
   { screen: 'create', label: t('menuCreate'), hint: t('menuCreateHint') },
   { screen: 'join', label: t('menuJoin'), hint: t('menuJoinHint') },
   { screen: 'tutorial', label: t('menuHowTo'), hint: t('menuHowToHint') },
@@ -13,7 +14,7 @@ const ITEMS: { screen: AppScreen | 'quick'; label: string; hint: string; primary
   { screen: 'privacy', label: t('menuPrivacy'), hint: t('menuPrivacyHint') },
 ];
 
-export function MainMenu({ go, quickPlay }: { go: (s: AppScreen) => void; quickPlay: () => void }) {
+export function MainMenu({ go, quickPlay }: { go: (s: AppScreen) => void; quickPlay: (withBots?: boolean) => void }) {
   const leftReason = useStore((s) => s.leftReason);
   const publicUrl = useStore((s) => s.serverInfo?.publicUrl ?? null);
   return (
@@ -49,7 +50,7 @@ export function MainMenu({ go, quickPlay }: { go: (s: AppScreen) => void; quickP
           ).map((item) => (
             <li key={item.label}>
               <button
-                onClick={() => (item.screen === 'quick' ? quickPlay() : go(item.screen))}
+                onClick={() => (item.screen === 'quick' || item.screen === 'bots' ? quickPlay(item.screen === 'bots') : go(item.screen))}
                 className={`group flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-left transition ${
                   item.primary
                     ? 'bg-gradient-to-r from-gold-500/25 to-gold-500/5 ring-1 ring-gold-400/40 hover:from-gold-500/35'

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BANGLADESH_RULES } from '@card29/shared';
+import { ReconnectBanner } from '../components/ReconnectBanner';
+import { Screen } from '../components/Screen';
 import { Toasts } from '../components/Toasts';
 import { Privacy } from '../features/about/Privacy';
 import { GameScreen } from '../features/game/GameScreen';
@@ -17,23 +19,18 @@ export type AppScreen = 'menu' | 'create' | 'join' | 'tutorial' | 'rules' | 'pri
 
 /**
  * Application navigation. Room membership (from the server) takes precedence:
- * when you are in a room you see the lobby or the table; otherwise the menus.
- * Navigation never decides whether a game action is legal — the server does.
+ * when you are in a room you see the lobby or the table at /game?room=CODE;
+ * otherwise the menus at /. Navigation never decides whether a game action is
+ * legal — the server does.
  */
 export function App() {
   const room = useStore((s) => s.room);
+  const roomCode = useStore((s) => s.roomCode);
+  const pendingJoinCode = useStore((s) => s.pendingJoinCode);
+  const urlRoom = useStore((s) => s.linkedRoom);
   const [screen, setScreen] = useState<AppScreen>('menu');
 
-  useEffect(() => {
-    net.connect();
-    const onVisible = () => document.visibilityState === 'visible' && net.poke();
-    document.addEventListener('visibilitychange', onVisible);
-    window.addEventListener('online', onVisible);
-    return () => {
-      document.removeEventListener('visibilitychange', onVisible);
-      window.removeEventListener('online', onVisible);
-    };
-  }, []);
+  useEffect(() => net.start(), []);
 
   // Each screen opens at the top, not at the previous screen's scroll position.
   useEffect(() => {
@@ -45,20 +42,34 @@ export function App() {
     if (!room) setScreen('menu');
   }, [room]);
 
-  const quickPlay = () => {
+  const quickPlay = (withBots = false) => {
     const name = store.getState().settings.name.trim();
     if (!name) {
       store.toast('Choose a display name first.', 'warn');
       setScreen('create');
       return;
     }
-    net.send({ type: 'CREATE_ROOM', name, rules: BANGLADESH_RULES });
+    net.send({ type: 'CREATE_ROOM', name, rules: BANGLADESH_RULES, withBots });
   };
+
+  // A room link (/game?room=CODE) that is still being resumed or joined.
+  const linkedRoom = !room ? urlRoom : null;
+  const inRoomPage = !!room || !!roomCode || !!linkedRoom;
 
   let content: React.ReactNode;
   if (room && room.phase === 'IN_GAME') content = <GameScreen room={room} />;
   else if (room && room.phase === 'LOBBY') content = <Lobby room={room} />;
-  else {
+  else if (pendingJoinCode) content = <JoinGame initialCode={pendingJoinCode} onBack={() => net.cancelPendingJoin()} />;
+  else if (linkedRoom || roomCode) {
+    content = (
+      <Screen title={`Room ${linkedRoom ?? roomCode}`} onBack={() => net.cancelPendingJoin()}>
+        <div className="panel flex items-center gap-3 p-5 text-sm text-white/70">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-gold-300" />
+          Joining the room…
+        </div>
+      </Screen>
+    );
+  } else {
     const back = () => setScreen('menu');
     content =
       screen === 'create' ? (
@@ -79,6 +90,7 @@ export function App() {
   return (
     <>
       {content}
+      {inRoomPage && <ReconnectBanner />}
       <Toasts />
     </>
   );

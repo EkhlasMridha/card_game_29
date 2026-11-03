@@ -25,6 +25,10 @@ export interface ClientState {
   connection: ConnectionStatus;
   serverInfo: ServerInfo | null;
   roomCode: string | null;
+  /** Room code from an invite link that still needs a display name before joining. */
+  pendingJoinCode: string | null;
+  /** Room code in the address bar (/game?room=CODE), mirrored here so the UI re-renders when it changes. */
+  linkedRoom: string | null;
   room: RoomView | null;
   game: GameView | null;
   rev: number;
@@ -59,6 +63,8 @@ class Store {
     connection: 'connecting',
     serverInfo: null,
     roomCode: null,
+    pendingJoinCode: null,
+    linkedRoom: null,
     room: null,
     game: null,
     rev: -1,

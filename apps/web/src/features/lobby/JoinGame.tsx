@@ -6,18 +6,18 @@ import { net } from '../../network/client';
 import { useStore } from '../../state/hooks';
 import { store } from '../../state/store';
 
-export function JoinGame({ onBack }: { onBack: () => void }) {
+export function JoinGame({ onBack, initialCode = '' }: { onBack: () => void; initialCode?: string }) {
   const savedName = useStore((s) => s.settings.name);
   const info = useStore((s) => s.serverInfo);
   const [name, setName] = useState(savedName);
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(initialCode);
 
   const join = (roomCode: string) => {
     const n = name.trim();
     if (!n) return store.toast('Please enter a display name.', 'warn');
     if (!/^[A-Z0-9]{4}$/.test(roomCode)) return store.toast('Room codes have 4 letters/numbers.', 'warn');
     store.updateSettings({ name: n });
-    net.send({ type: 'JOIN_ROOM', code: roomCode, name: n });
+    net.joinRoom(roomCode, n);
   };
 
   const open = info?.rooms.filter((r) => !r.inGame && r.players < 4) ?? [];
@@ -103,12 +103,24 @@ export function JoinGame({ onBack }: { onBack: () => void }) {
       )}
 
       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-relaxed text-white/60">
-        <p className="mb-2 font-semibold text-white/80">Address vs. room code</p>
-        <p>
-          You are connected to the host at <span className="font-mono text-gold-300">{location.host}</span>. To reach a{' '}
-          <em>different</em> host, open its address in your browser (for example <span className="font-mono">http://192.168.1.100:5050</span>). A room
-          code only picks a table <em>on the host you are connected to</em>. It cannot find a host for you.
-        </p>
+        {info?.publicUrl ? (
+          <>
+            <p className="mb-2 font-semibold text-white/80">Playing over the internet</p>
+            <p>
+              Anyone can join from anywhere: open <span className="font-mono text-gold-300">{info.publicUrl}</span>, choose Join Game and enter the
+              4-character room code from the player who created the table.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="mb-2 font-semibold text-white/80">Address vs. room code</p>
+            <p>
+              You are connected to the host at <span className="font-mono text-gold-300">{location.host}</span>. To reach a{' '}
+              <em>different</em> host, open its address in your browser (for example <span className="font-mono">http://192.168.1.100:5050</span>). A
+              room code only picks a table <em>on the host you are connected to</em>. It cannot find a host for you.
+            </p>
+          </>
+        )}
       </div>
     </Screen>
   );

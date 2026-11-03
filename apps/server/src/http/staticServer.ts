@@ -41,6 +41,9 @@ const SECURITY_HEADERS: Record<string, string> = {
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
 };
 
+/** Paths that render the app (the room page is /game?room=CODE). */
+const APP_PAGES = new Set(['/', '/index.html', '/game']);
+
 /** Marker in index.html replaced with the canonical / og:url tags when PUBLIC_URL is set. */
 const SEO_MARKER = '<!--card29:canonical-->';
 
@@ -64,8 +67,8 @@ export function createRequestHandler(webRoot: string, info: () => ServerInfo, si
     : '';
 
   const robots = site.publicUrl
-    ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /ws\n\nSitemap: ${site.publicUrl}/sitemap.xml\n`
-    : 'User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /ws\n';
+    ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /game\nDisallow: /ws\n\nSitemap: ${site.publicUrl}/sitemap.xml\n`
+    : 'User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /game\nDisallow: /ws\n';
   const sitemap = site.publicUrl
     ? `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${site.publicUrl}/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>\n</urlset>\n`
     : null;
@@ -124,14 +127,14 @@ export function createRequestHandler(webRoot: string, info: () => ServerInfo, si
 
     const isFile = target !== indexFile && existsSync(target) && statSync(target).isFile();
     if (!isFile) {
-      // The app has a single page. "/" serves it; a missing asset is a plain 404 (never HTML
+      // The app pages ("/", "/game") serve index.html; a missing asset is a plain 404 (never HTML
       // served as JavaScript); any other unknown path shows the app with a 404 status so
       // search engines don't index it as a duplicate page.
       if (pathname.startsWith('/assets/')) {
         sendText(req, res, 404, MIME['.txt'], 'Not found');
         return;
       }
-      const status = pathname === '/' || pathname === '/index.html' ? 200 : 404;
+      const status = APP_PAGES.has(pathname) ? 200 : 404;
       sendText(req, res, status, MIME['.html'], indexHtml);
       return;
     }

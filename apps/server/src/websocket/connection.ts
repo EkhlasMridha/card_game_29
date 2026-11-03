@@ -117,13 +117,17 @@ export class ClientConnection implements Connection {
         this.leaveCurrent();
         const room = this.rooms.create(msg.roomName, msg.rules);
         if (!room) return this.error('TOO_MANY_ROOMS', 'This host has too many open rooms.');
-        this.bind(room, room.join(msg.name, this), false);
+        const host = room.join(msg.name, this);
+        this.bind(room, host, false);
+        if (msg.withBots) room.start(host, true);
         return;
       }
       case 'JOIN_ROOM': {
         const room = this.rooms.get(msg.code);
         if (!room) return this.error('ROOM_NOT_FOUND', `No room with code ${msg.code} on this host.`);
         this.leaveCurrent();
+        const reclaimed = room.reclaim(msg.name, this);
+        if (reclaimed) return this.bind(room, reclaimed, true);
         try {
           this.bind(room, room.join(msg.name, this), false);
         } catch (err) {
@@ -161,8 +165,10 @@ export class ClientConnection implements Connection {
         return room.kick(player, msg.seat);
       case 'UPDATE_RULES':
         return room.updateRules(player, msg.rules);
+      case 'ADD_BOT':
+        return room.addBot(player, msg.seat);
       case 'START_GAME':
-        return room.start(player);
+        return room.start(player, msg.fillBots ?? false);
       case 'END_MATCH':
         return room.endMatch(player);
       case 'CLOSE_ROOM':

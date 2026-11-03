@@ -87,6 +87,8 @@ export const clientMessageSchema = z.discriminatedUnion('type', [
     name: nameField,
     roomName: z.string().max(64).optional(),
     rules: rulesSchema,
+    /** Fill the other three seats with bots and start the match right away. */
+    withBots: z.boolean().optional(),
   }),
   z.object({ ...base, type: z.literal('JOIN_ROOM'), code: roomCode, name: nameField }),
   z.object({ ...base, type: z.literal('RESUME'), code: roomCode, token }),
@@ -94,7 +96,9 @@ export const clientMessageSchema = z.discriminatedUnion('type', [
   z.object({ ...base, type: z.literal('SELECT_SEAT'), seat }),
   z.object({ ...base, type: z.literal('KICK_PLAYER'), seat }),
   z.object({ ...base, type: z.literal('UPDATE_RULES'), rules: rulesSchema }),
-  z.object({ ...base, type: z.literal('START_GAME') }),
+  z.object({ ...base, type: z.literal('ADD_BOT'), seat }),
+  // fillBots: put bots in every empty seat before starting.
+  z.object({ ...base, type: z.literal('START_GAME'), fillBots: z.boolean().optional() }),
   z.object({ ...base, type: z.literal('PLACE_BID'), amount: z.number().int().min(14).max(29) }),
   z.object({ ...base, type: z.literal('DITTO_BID') }),
   z.object({ ...base, type: z.literal('PASS_BID') }),

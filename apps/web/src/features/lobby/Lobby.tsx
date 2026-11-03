@@ -4,7 +4,8 @@ import { TEAM_NAMES, describeRules, teamOf, type RoomView, type Seat } from '@ca
 import { ConnectionBadge } from '../../components/ConnectionBadge';
 import { Modal } from '../../components/Modal';
 import { t } from '../../i18n';
-import { net } from '../../network/client';
+import { net, roomLink } from '../../network/client';
+import { store } from '../../state/store';
 import { useStore } from '../../state/hooks';
 import { RulesEditor } from './RulesEditor';
 
@@ -41,6 +42,56 @@ function QrImage({ text }: { text: string }) {
   return src ? <img src={src} alt={`QR code for ${text}`} width={150} height={150} className="rounded-lg" /> : null;
 }
 
+async function copyText(text: string): Promise<boolean> {
+  try {
+    // The Clipboard API needs a secure context (https or localhost).
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    /* fall through to the legacy path */
+  }
+  // Plain-http LAN addresses: the legacy copy command still works there.
+  const area = document.createElement('textarea');
+  area.value = text;
+  area.setAttribute('readonly', '');
+  area.style.position = 'fixed';
+  area.style.opacity = '0';
+  document.body.appendChild(area);
+  area.select();
+  let ok = false;
+  try {
+    ok = document.execCommand('copy');
+  } catch {
+    ok = false;
+  }
+  area.remove();
+  return ok;
+}
+
+function CopyButton({ text, label }: { text: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const id = window.setTimeout(() => setCopied(false), 1800);
+    return () => clearTimeout(id);
+  }, [copied]);
+  return (
+    <button
+      type="button"
+      className="btn-secondary min-h-9 shrink-0 px-3 py-1 text-xs"
+      onClick={async () => {
+        if (await copyText(text)) setCopied(true);
+        else store.toast('Could not copy. Select the text and copy it manually.', 'warn');
+      }}
+      aria-label={label}
+    >
+      {copied ? 'Copied ✓' : label}
+    </button>
+  );
+}
+
 const SEAT_POS: Record<number, string> = {
   0: 'col-start-2 row-start-3',
   1: 'col-start-1 row-start-2',
@@ -53,9 +104,11 @@ export function Lobby({ room }: { room: RoomView }) {
   const online = useStore((s) => !!s.serverInfo?.publicUrl);
   const [urlIdx, setUrlIdx] = useState(0);
   const [editing, setEditing] = useState(false);
-  const url = urls[Math.min(urlIdx, urls.length - 1)]?.url ?? null;
+  const base = urls[Math.min(urlIdx, urls.length - 1)]?.url ?? null;
+  const url = base ? roomLink(base, room.code) : null;
   const filled = room.seats.filter((s) => s.occupied).length;
   const allConnected = room.seats.every((s) => s.occupied && s.connected);
+  const seatedConnected = room.seats.every((s) => !s.occupied || s.connected);
   const ruleLines = describeRules(room.rules);
 
   // Orient the diagram so that the viewer sits at the bottom.
@@ -113,6 +166,7 @@ export function Lobby({ room }: { room: RoomView }) {
                       <div className="truncate text-sm font-semibold text-white">{s.name}</div>
                       <div className="flex flex-wrap items-center gap-1 text-[10px] text-white/60">
                         {s.isYou && <span>{t('you')}</span>}
+                        {s.isBot && <span className="rounded bg-white/10 px-1 text-sky-200">BOT</span>}
                         {s.isHost && <span className="text-gold-300">★ {t('host')}</span>}
                         {!s.connected && <span className="text-amber-300">{t('offline')}</span>}
                       </div>
@@ -123,12 +177,22 @@ export function Lobby({ room }: { room: RoomView }) {
                       )}
                     </div>
                   ) : (
-                    <button
-                      className="mt-1 rounded-lg border border-dashed border-white/20 py-1.5 text-xs text-white/60 hover:border-gold-400 hover:text-gold-300"
-                      onClick={() => net.send({ type: 'SELECT_SEAT', seat: s.seat })}
-                    >
-                      {t('takeSeat')}
-                    </button>
+                    <div className="mt-1 flex flex-col gap-1">
+                      <button
+                        className="rounded-lg border border-dashed border-white/20 py-1.5 text-xs text-white/60 hover:border-gold-400 hover:text-gold-300"
+                        onClick={() => net.send({ type: 'SELECT_SEAT', seat: s.seat })}
+                      >
+                        {t('takeSeat')}
+                      </button>
+                      {room.youAreHost && (
+                        <button
+                          className="rounded-lg border border-dashed border-sky-300/25 py-1.5 text-xs text-sky-200/70 hover:border-sky-300 hover:text-sky-200"
+                          onClick={() => net.send({ type: 'ADD_BOT', seat: s.seat })}
+                        >
+                          + Add bot
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               );
@@ -137,13 +201,24 @@ export function Lobby({ room }: { room: RoomView }) {
 
           <div className="mt-5">
             {room.youAreHost ? (
-              <button
-                className="btn-primary w-full text-base"
-                disabled={filled < 4 || !allConnected}
-                onClick={() => net.send({ type: 'START_GAME' })}
-              >
-                {filled < 4 ? t('lobbyNeedFour', { n: filled }) : !allConnected ? 'Waiting for everyone to reconnect' : t('startMatch')}
-              </button>
+              <div className="flex flex-col gap-2">
+                <button
+                  className="btn-primary w-full text-base"
+                  disabled={filled < 4 || !allConnected}
+                  onClick={() => net.send({ type: 'START_GAME' })}
+                >
+                  {filled < 4 ? t('lobbyNeedFour', { n: filled }) : !allConnected ? 'Waiting for everyone to reconnect' : t('startMatch')}
+                </button>
+                {filled < 4 && (
+                  <button
+                    className="btn-secondary w-full"
+                    disabled={!seatedConnected}
+                    onClick={() => net.send({ type: 'START_GAME', fillBots: true })}
+                  >
+                    Start now with {4 - filled} bot{4 - filled === 1 ? '' : 's'} in the empty seat{4 - filled === 1 ? '' : 's'}
+                  </button>
+                )}
+              </div>
             ) : (
               <p className="rounded-xl bg-white/5 px-4 py-3 text-center text-sm text-white/70">{t('lobbyWaiting')}</p>
             )}
@@ -161,10 +236,18 @@ export function Lobby({ room }: { room: RoomView }) {
               )}
               <div className="min-w-0 flex-1">
                 <p className="label">{t('roomCode')}</p>
-                <p className="mb-3 font-mono text-4xl font-bold tracking-[0.3em] text-gold-300">{room.code}</p>
+                <div className="mb-3 flex items-center gap-3">
+                  <p className="font-mono text-4xl font-bold tracking-[0.3em] text-gold-300">{room.code}</p>
+                  <CopyButton text={room.code} label="Copy code" />
+                </div>
                 <p className="label">{t('joinAddress')}</p>
                 {url ? (
-                  <p className="font-mono text-base break-all text-white">{url}</p>
+                  <div className="flex items-start gap-2">
+                    <a className="min-w-0 flex-1 font-mono text-sm break-all text-white underline decoration-white/30 hover:text-gold-300" href={url}>
+                      {url}
+                    </a>
+                    <CopyButton text={url} label="Copy link" />
+                  </div>
                 ) : (
                   <p className="text-sm text-amber-200">No LAN address found. Connect the host computer to Wi-Fi.</p>
                 )}
@@ -188,8 +271,11 @@ export function Lobby({ room }: { room: RoomView }) {
               {!online && (
                 <li>Join the same Wi-Fi network as the host (guest networks and some hotspots block devices from seeing each other).</li>
               )}
-              <li>Open the join address in a browser, or scan the QR code.</li>
-              <li>Choose Join Game and enter room code <span className="font-mono text-gold-300">{room.code}</span>.</li>
+              <li>Send the join link (or show the QR code). It opens this room directly.</li>
+              <li>
+                Or open {online ? 'this site' : 'the address'}, choose Join Game and enter room code{' '}
+                <span className="font-mono text-gold-300">{room.code}</span>.
+              </li>
             </ol>
           </section>
 

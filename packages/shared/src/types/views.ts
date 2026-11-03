@@ -13,6 +13,8 @@ export interface SeatView {
   connected: boolean;
   isHost: boolean;
   isYou: boolean;
+  /** Computer-controlled seat. */
+  isBot: boolean;
 }
 
 export interface RoomView {
