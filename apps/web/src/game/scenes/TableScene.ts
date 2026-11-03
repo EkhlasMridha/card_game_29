@@ -47,7 +47,6 @@ export class TableScene extends Phaser.Scene {
   private indicatorLabel: Phaser.GameObjects.Text | null = null;
   private hint: Phaser.GameObjects.Text | null = null;
 
-  private selected: CardId | null = null;
   private hover: CardId | null = null;
   private pending: { card: CardId; at: number } | null = null;
   private lastCompletedKey: string | null = null;
@@ -309,7 +308,6 @@ export class TableScene extends Phaser.Scene {
     this.indicatorKey = '';
     this.indicatorLabel?.destroy();
     this.indicatorLabel = null;
-    this.selected = null;
     this.pending = null;
   }
 
@@ -552,7 +550,6 @@ export class TableScene extends Phaser.Scene {
         this.tweens.add({ targets: s, alpha: 0, y: s.y + 40 * this.d, duration: this.dur(250), onComplete: () => s.destroy() });
       }
     }
-    if (this.selected && !inHand.has(this.selected)) this.selected = null;
     if (this.pending && !inHand.has(this.pending.card)) this.pending = null;
 
     const scale = this.L.handW / CARD_W;
@@ -608,9 +605,8 @@ export class TableScene extends Phaser.Scene {
       let lift = 0;
       if (isLegal) lift = 12 * d;
       if (this.hover === card && isLegal) lift = 22 * d;
-      if (this.selected === card && isLegal) lift = 38 * d;
       if (this.pending?.card === card) lift = 50 * d;
-      this.moveTo(s, slot.x, slot.y - lift, this.selected === card ? 0 : slot.angle, scale, this.dur(180));
+      this.moveTo(s, slot.x, slot.y - lift, this.pending?.card === card ? 0 : slot.angle, scale, this.dur(180));
     });
   }
 
@@ -629,14 +625,7 @@ export class TableScene extends Phaser.Scene {
       else store.toast('You must follow the suit that was led.', 'warn', 2000);
       return;
     }
-    if (this.selected === card) {
-      if (this.bridge.playCard(card)) {
-        this.pending = { card, at: Date.now() };
-        this.selected = null;
-      }
-    } else {
-      this.selected = card;
-    }
+    if (this.bridge.playCard(card)) this.pending = { card, at: Date.now() };
     this.layoutHand();
     this.renderHint(game);
   }
@@ -788,8 +777,7 @@ export class TableScene extends Phaser.Scene {
     let text = '';
     if (myTurn) {
       if (game.actions.mustRequestReveal) text = 'You cannot follow suit — ask for trump';
-      else if (this.selected) text = 'Tap the raised card again to play it';
-      else text = 'Your turn — tap a bright card to select it';
+      else text = 'Your turn — tap a bright card to play it';
     }
     this.hint.setText(text).setVisible(!!text);
     this.hint.setPosition(this.L.W / 2, this.L.handTop - 58 * this.d);
